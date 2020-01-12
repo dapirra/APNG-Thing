@@ -11,7 +11,7 @@ fcTL_struct_format_crc = fcTL_struct_format + 'I'
 def main():
     args = sys.argv
     apng_file = args[1]  # Input file
-    new_delay = args[2]  # FPS
+    new_delay = int(args[2])  # FPS
 
     with open(apng_file, 'rb+') as f:  # Open the APNG file
         with mmap.mmap(f.fileno(), 0) as m:  # Make changes to the file in memory
