@@ -24,6 +24,7 @@ def main():
                 curr_position = m.find(b'fcTL', last_position)  # Find fcTL chunk (This denotes the start of a frame)
                 m.seek(curr_position)  # Go to chunk beginning
                 frame_info = list(struct.unpack(fcTL_struct_format, m.read(30)))  # Read in chunk data as a list
+                frame_info[9] = 1  # Need to make sure that the delay numerator is 1
                 frame_info[10] = new_delay  # Set new delay denominator
 
                 # Generate CRC checksum from binary data
