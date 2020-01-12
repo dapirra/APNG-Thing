@@ -3,6 +3,7 @@ import mmap
 import struct
 import sys
 
+acTL_struct_format = '>II'
 fcTL_struct_format = '>ccccIIIIIHHBB'
 fcTL_struct_format_crc = fcTL_struct_format + 'I'
 
@@ -15,11 +16,11 @@ def main():
     with open(apng_file, 'rb+') as f:  # Open the APNG file
         with mmap.mmap(f.fileno(), 0) as m:  # Make changes to the file in memory
             m.seek(m.find(b'acTL') + 4)  # Find the Animation Control chunk
-            header = struct.unpack('>II', m.read(8))  # Read in information
-            number_of_frames = header[0]  # Note that this includes the first frame even if skipped
+            header = struct.unpack(acTL_struct_format, m.read(8))  # Read in information
+            total_frames = header[0]  # Note that this includes the first frame even if skipped
             last_position = 0  # Start at the beginning of the APNG file
 
-            for i in range(number_of_frames - 1):  # The delay of each frame must be changed individually
+            for i in range(total_frames - 1):  # The delay of each frame must be changed individually
                 curr_position = m.find(b'fcTL', last_position)  # Find fcTL chunk (This denotes the start of a frame)
                 m.seek(curr_position)  # Go to chunk beginning
                 frame_info = list(struct.unpack(fcTL_struct_format, m.read(30)))  # Read in chunk data as a list
