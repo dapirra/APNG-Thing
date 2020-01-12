@@ -1,14 +1,16 @@
 import binascii
 import mmap
 import struct
+import sys
 
 fcTL_struct_format = '>ccccIIIIIHHBB'
 fcTL_struct_format_crc = fcTL_struct_format + 'I'
 
 
 def main():
-    apng_file = 'test 720p 15fps zopfli.png'
-    new_delay = 15
+    args = sys.argv
+    apng_file = args[1]
+    new_delay = args[2]
 
     with open(apng_file, 'rb+') as f:
         with mmap.mmap(f.fileno(), 0) as m:
