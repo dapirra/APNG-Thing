@@ -2,6 +2,9 @@ import binascii
 import mmap
 import struct
 
+fcTL_struct_format = '>ccccIIIIIHHBB'
+fcTL_struct_format_crc = fcTL_struct_format + 'I'
+
 
 def main():
     apng_file = 'test 720p 15fps zopfli.png'
@@ -17,15 +20,15 @@ def main():
             for i in range(number_of_frames - 1):
                 curr_position = m.find(b'fcTL', last_position)  # Find fcTL chunk
                 m.seek(curr_position)  # Go to chunk beginning
-                frame_info = list(struct.unpack('>ccccIIIIIHHBB', m.read(30)))  # Read in chunk data as a list
+                frame_info = list(struct.unpack(fcTL_struct_format, m.read(30)))  # Read in chunk data as a list
                 frame_info[10] = new_delay  # Set new delay denominator
 
                 # Generate CRC checksum from binary data
-                crc = binascii.crc32(struct.pack('>ccccIIIIIHHBB', *frame_info))
+                crc = binascii.crc32(struct.pack(fcTL_struct_format, *frame_info))
                 frame_info.append(crc)
 
                 m.seek(curr_position)  # Move back to chunk beginning
-                frame_binary = struct.pack('>ccccIIIIIHHBBI', *frame_info)  # Pack with CRC checksum
+                frame_binary = struct.pack(fcTL_struct_format_crc, *frame_info)  # Pack with CRC checksum
                 m.write(frame_binary)  # Write changes
 
                 last_position = curr_position + 34  # Prevent the same chunk from being found
